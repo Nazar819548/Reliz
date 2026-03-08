@@ -1,0 +1,12 @@
+[
+  { "name": "Bracelet", "price": 15, "image": "Знімок екрана 2026-03-01 193306.png" },
+  { "name": "Stickers", "price": 25, "image": "Знімок екрана 2026-03-01 193312.png" },
+  { "name": "Pens/pencils", "price": 25, "image": "Знімок екрана 2026-03-01 193315.png" },
+  { "name": "Pin", "price": 30, "image": "Знімок екрана 2026-03-01 193320.png" },
+  { "name": "Popsocket", "price": 50, "image": "Знімок екрана 2026-03-01 193323.png" },
+  { "name": "Socks", "price": 100, "image": "Знімок екрана 2026-03-01 193326.png" },
+  { "name": "Bottle", "price": 150, "image": "Знімок екрана 2026-03-01 193331.png" },
+  { "name": "Mouse pad", "price": 180, "image": "Знімок екрана 2026-03-01 193334.png" },
+  { "name": "Fanny Pack", "price": 220, "image": "Знімок екрана 2026-03-01 193339.png" },
+  { "name": "T-shirt", "price": 250, "image": "Знімок екрана 2026-03-01 193346.png" }
+]
