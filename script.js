@@ -176,3 +176,21 @@ window.onclick = (event) => {
     if (event.target == cartModal) cartModal.style.display = "none";
     if (event.target == orderModal) orderModal.style.display = "none";
 };
+const searchInput = document.getElementById("searchInput");
+
+searchInput.addEventListener("input", function () {
+    const searchValue = this.value.toLowerCase();
+    const cards = document.querySelectorAll(".card");
+
+    cards.forEach(card => {
+        const productName = card.querySelector("h3").innerText.toLowerCase();
+
+        if (productName.includes(searchValue)) {
+            card.style.display = "flex";
+        } else {
+            card.style.display = "none";
+        }
+    });
+});
+const priceFilter = document.getElementById("priceFilter");
+let productsData = [];
