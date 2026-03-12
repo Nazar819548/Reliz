@@ -1,196 +1,227 @@
-
 const container = document.getElementById("products");
 const cartCountElement = document.getElementById("cartCount");
 const balanceElement = document.getElementById("userBalance");
 
-
 const loginModal = document.getElementById("loginModal");
+const regModal = document.getElementById("regModal"); 
 const cartModal = document.getElementById("cartModal");
 const orderModal = document.getElementById("orderModal");
 
+const adminModal = document.getElementById("adminModal");
 const loginBtn = document.getElementById("loginBtn");
-const submitLogin = document.getElementById("submitLogin");
-const closeLogin = document.querySelector(".close-login");
+const regBtn = document.getElementById("regBtn"); 
 
-
-const cartItemsList = document.getElementById("cartItemsList");
-const cartTotalLabel = document.getElementById("cartTotal");
+const searchInput = document.getElementById("searchInput");
+const priceFilter = document.getElementById("priceFilter");
 
 let cart = []; 
 let isLogged = false;
 let currentBalance = 0;
-let userRealBalance = 1000; 
-
-balanceElement.innerText = currentBalance;
+let productsData = []; 
 
 
-loginBtn.onclick = () => loginModal.style.display = "block";
-closeLogin.onclick = () => loginModal.style.display = "none";
+function filterAndDisplay() {
+    const term = searchInput.value.toLowerCase();
+    const sortMode = priceFilter.value;
+    let filtered = productsData.filter(p => p.name.toLowerCase().includes(term));
 
-submitLogin.onclick = () => {
-    const user = document.getElementById("username").value;
-    if (user.length >= 2) {
-        isLogged = true;
-        currentBalance = userRealBalance;
-        balanceElement.innerText = currentBalance;
-        loginBtn.innerText = user;
-        loginModal.style.display = "none";
-        alert(`Вітаємо, ${user}! Твій баланс: ${currentBalance} Logiks`);
-    } else {
-        alert("Введіть логін (мінімум 2 символи)");
+    if (sortMode === "cheap") filtered.sort((a, b) => a.price - b.price);
+    if (sortMode === "expensive") filtered.sort((a, b) => b.price - a.price);
+
+    displayProducts(filtered);
+}
+
+searchInput.addEventListener("input", filterAndDisplay);
+priceFilter.addEventListener("change", filterAndDisplay);
+
+
+function setCookie(name, value, days) {
+    let expires = "";
+    if (days) {
+        let date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toUTCString();
     }
-};
+    document.cookie = name + "=" + (value || "") + expires + "; path=/";
+}
 
-document.getElementById("cartBtn").onclick = () => {
-    renderCart();
-    cartModal.style.display = "block";
-};
-
-
-document.querySelector(".close-cart").onclick = () => cartModal.style.display = "none";
-document.querySelector(".close-order").onclick = () => orderModal.style.display = "none";
-
-
-function renderCart() {
-    cartItemsList.innerHTML = "";
-    let total = 0;
-
-    if (cart.length === 0) {
-        cartItemsList.innerHTML = "<p style='text-align:center;'>Кошик порожній</p>";
+function getCookie(name) {
+    let nameEQ = name + "=";
+    let ca = document.cookie.split(';');
+    for(let i=0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
     }
-
-    cart.forEach((item, index) => {
-        total += item.price;
-        const div = document.createElement("div");
-        div.classList.add("cart-item"); 
-        div.style.display = "flex";
-        div.style.justifyContent = "space-between";
-        div.style.marginBottom = "10px";
-        
-        div.innerHTML = `
-            <span>${item.name} (${item.price} L)</span>
-            <button onclick="removeFromCart(${index})" style="background:#ff4444; color:white; border:none; cursor:pointer; border-radius:5px;">Видалити</button>
-        `;
-        cartItemsList.appendChild(div);
-    });
-
-    cartTotalLabel.innerText = total;
+    return null;
 }
 
 
-window.removeFromCart = function(index) {
-    cart.splice(index, 1);
-    cartCountElement.innerText = cart.length;
-    renderCart();
-};
-
-
-fetch("data.json")
-    .then(response => response.json())
-    .then(data => {
-        data.forEach(product => {
-            const card = document.createElement("div");
-            card.classList.add("card");
-            card.setAttribute("data-aos", "fade-up");
-
-            card.innerHTML = `
-                <div class="img-wrapper">
-                    <img src="${product.image}" alt="${product.name}">
-                </div>
-                <h3>${product.name}</h3>
-                <p class="price">${product.price} Logiks</p>
-                <button class="buy-btn">Придбати</button>
-            `;
-
-            const btn = card.querySelector(".buy-btn");
-            
-            btn.addEventListener("click", () => {
-                if (!isLogged) {
-                    alert("Спочатку увійдіть у свій аккаунт Logika!");
-                    return;
-                }
-
-                
-                cart.push(product);
-                cartCountElement.innerText = cart.length;
-
-                
-                btn.innerText = "В кошику!";
-                btn.style.background = "#4CAF50";
-                setTimeout(() => {
-                    btn.innerText = "Придбати";
-                    btn.style.background = "#222";
-                }, 800);
-            });
-
-            container.appendChild(card);
-        });
-    })
-    .catch(error => console.error("Помилка:", error));
-
-
-
-document.getElementById("checkoutBtn").onclick = () => {
-    let total = parseInt(cartTotalLabel.innerText);
-    
-    if (cart.length === 0) {
-        alert("Кошик порожній!");
-        return;
+function showGlobalAlert(text) {
+    let alertBox = document.getElementById("globalAlertBar");
+    if (!alertBox) {
+        alertBox = document.createElement("div");
+        alertBox.id = "globalAlertBar";
+        alertBox.style = "position: fixed; top: 0; left: 0; width: 100%; background: #ff4757; color: white; text-align: center; padding: 15px; font-weight: bold; z-index: 10000; box-shadow: 0 4px 10px rgba(0,0,0,0.3);";
+        document.body.prepend(alertBox);
     }
+    let seconds = 10;
+    const interval = setInterval(() => {
+        alertBox.innerHTML = `NazarProgram ✓: ${text} <span style="margin-left:10px; background:rgba(0,0,0,0.2); padding:2px 8px; border-radius:4px;">${seconds}s</span>`;
+        seconds--;
+        if (seconds < 0) { clearInterval(interval); alertBox.remove(); }
+    }, 1000);
+}
 
-    if (currentBalance < total) {
-        alert(`Недостатньо логіків! Твій баланс: ${currentBalance}, а потрібно: ${total}`);
-    } else {
-        cartModal.style.display = "none";
-        orderModal.style.display = "block";
+
+let pollTimerInterval;
+function initPollUI(data) {
+    const container = document.getElementById("activePollContainer");
+    container.style.display = "block";
+    document.getElementById("displayPollQuest").innerText = data.question;
+    document.getElementById("opt1Text").innerText = data.opt1;
+    document.getElementById("opt2Text").innerText = data.opt2;
+    updatePollBars(data);
+    clearInterval(pollTimerInterval);
+    pollTimerInterval = setInterval(() => {
+        const remaining = Math.round((data.endTime - Date.now()) / 1000);
+        document.getElementById("pollTimer").innerText = remaining + "s";
+        if (remaining <= 0) { clearInterval(pollTimerInterval); setTimeout(() => container.style.display = "none", 3000); }
+    }, 1000);
+}
+
+function updatePollBars(data) {
+    const total = (data.votes1 || 0) + (data.votes2 || 0);
+    const p1 = total === 0 ? 0 : Math.round((data.votes1 / total) * 100);
+    const p2 = total === 0 ? 0 : 100 - p1;
+    document.getElementById("opt1Perc").innerText = p1 + "%";
+    document.getElementById("opt2Perc").innerText = p2 + "%";
+    document.getElementById("bar1").style.width = p1 + "%";
+    document.getElementById("bar2").style.width = p2 + "%";
+}
+
+window.vote = (option) => {
+    if (localStorage.getItem("votedPoll")) return alert("Ви вже голосували!");
+    let data = JSON.parse(localStorage.getItem("activePoll"));
+    if (option === 1) data.votes1++; else data.votes2++;
+    localStorage.setItem("activePoll", JSON.stringify(data));
+    localStorage.setItem("votedPoll", "true");
+    updatePollBars(data);
+};
+
+
+function postAnnouncement() {
+    const text = document.getElementById("announcementText").value;
+    if (text) {
+        localStorage.setItem("adminAnnouncement", text);
+        const box = document.getElementById("adminAnnouncement");
+        box.innerText = "📢 " + text;
+        box.style.display = "block";
+        adminModal.style.display = "none";
     }
-};
+}
 
-document.getElementById("confirmOrder").onclick = () => {
-    const fname = document.getElementById("firstName").value;
-    const lname = document.getElementById("lastName").value;
-    let total = parseInt(cartTotalLabel.innerText);
-
-    if (fname.trim() !== "" && lname.trim() !== "") {
-        currentBalance -= total;
-        balanceElement.innerText = currentBalance;
-        
-        alert(`Дякуємо, ${fname} ${lname}! Замовлення на суму ${total} Logiks прийнято!`);
-        
-       
-        cart = [];
-        cartCountElement.innerText = "0";
-        orderModal.style.display = "none";
-        
-        
-        document.getElementById("firstName").value = "";
-        document.getElementById("lastName").value = "";
-    } else {
-        alert("Будь ласка, введіть Прізвище та Ім'я!");
+function postGlobalMessage() {
+    const text = document.getElementById("announcementText").value;
+    if (text) {
+        localStorage.setItem("globalTrigger", text);
+        localStorage.removeItem("globalTrigger");
+        showGlobalAlert(text);
+        adminModal.style.display = "none";
     }
-};
+}
 
+function clearAnnouncement() {
+    localStorage.removeItem("adminAnnouncement");
+    document.getElementById("adminAnnouncement").style.display = "none";
+}
 
-window.onclick = (event) => {
-    if (event.target == loginModal) loginModal.style.display = "none";
-    if (event.target == cartModal) cartModal.style.display = "none";
-    if (event.target == orderModal) orderModal.style.display = "none";
-};
-const searchInput = document.getElementById("searchInput");
-
-searchInput.addEventListener("input", function () {
-    const searchValue = this.value.toLowerCase();
-    const cards = document.querySelectorAll(".card");
-
-    cards.forEach(card => {
-        const productName = card.querySelector("h3").innerText.toLowerCase();
-
-        if (productName.includes(searchValue)) {
-            card.style.display = "flex";
-        } else {
-            card.style.display = "none";
-        }
+function activateCustomSale() {
+    const mult = parseFloat(document.getElementById("salePercent").value);
+    fetch("data.json").then(res => res.json()).then(base => {
+        productsData = base.map(p => ({ ...p, price: Math.floor(p.price * mult) }));
+        localStorage.setItem("myStoreProducts", JSON.stringify(productsData));
+        filterAndDisplay();
+        adminModal.style.display = "none";
     });
-});
-const priceFilter = document.getElementById("priceFilter");
-let productsData = [];
+}
+
+function resetPrices() {
+    fetch("data.json").then(res => res.json()).then(data => {
+        productsData = data;
+        localStorage.setItem("myStoreProducts", JSON.stringify(data));
+        filterAndDisplay();
+        adminModal.style.display = "none";
+    });
+}
+
+function startPoll() {
+    const q = document.getElementById("pollQuestion").value;
+    const o1 = document.getElementById("pollOpt1").value;
+    const o2 = document.getElementById("pollOpt2").value;
+    if (!q || !o1 || !o2) return alert("Заповніть поля!");
+    const pData = { question: q, opt1: o1, opt2: o2, votes1: 0, votes2: 0, endTime: Date.now() + 59000 };
+    localStorage.setItem("activePoll", JSON.stringify(pData));
+    localStorage.removeItem("votedPoll");
+    initPollUI(pData);
+    adminModal.style.display = "none";
+}
+
+function addNewProduct() {
+    const name = document.getElementById("newPName").value;
+    const price = parseInt(document.getElementById("newPPrice").value);
+    const img = document.getElementById("newPImg").value || "https://via.placeholder.com/150";
+    if (name && price) {
+        productsData.unshift({ name, price, image: img });
+        localStorage.setItem("myStoreProducts", JSON.stringify(productsData));
+        filterAndDisplay();
+        adminModal.style.display = "none";
+    }
+}
+
+
+function checkAdmin(user) { if (user === "NazarProgram") document.getElementById("adminBtn").style.display = "block"; }
+
+function displayProducts(products) {
+    container.innerHTML = "";
+    if (products.length === 0) { container.innerHTML = `<div class="no-results">Нічого не знайдено</div>`; return; }
+    products.forEach(p => {
+        const card = document.createElement("div");
+        card.classList.add("card");
+        card.setAttribute("data-aos", "fade-up");
+        card.innerHTML = `<div class="img-wrapper"><img src="${p.image}"></div><h3>${p.name}</h3><p class="price">${p.price} Logiks</p><button class="buy-btn">Придбати</button>`;
+        card.querySelector(".buy-btn").onclick = () => {
+            if (!isLogged) return alert("Увійдіть!");
+            cart.push(p); cartCountElement.innerText = cart.length;
+        };
+        container.appendChild(card);
+    });
+}
+
+window.onload = () => {
+    const user = getCookie("username");
+    if (user) {
+        isLogged = true; loginBtn.innerText = user; regBtn.style.display = "none";
+        currentBalance = (user === "NazarProgram") ? 999999 : 1000;
+        balanceElement.innerText = currentBalance; checkAdmin(user);
+    }
+    const savedAnn = localStorage.getItem("adminAnnouncement");
+    if (savedAnn) { const b = document.getElementById("adminAnnouncement"); b.innerText = "📢 " + savedAnn; b.style.display = "block"; }
+    
+    const savedP = localStorage.getItem("myStoreProducts");
+    if (savedP) { productsData = JSON.parse(savedP); displayProducts(productsData); }
+    else { fetch("data.json").then(r => r.json()).then(d => { productsData = d; displayProducts(d); }); }
+    
+    const pol = localStorage.getItem("activePoll");
+    if (pol) { const d = JSON.parse(pol); if (d.endTime > Date.now()) initPollUI(d); }
+};
+
+
+document.getElementById("adminBtn").onclick = () => adminModal.style.display = "block";
+document.getElementById("closeAdmin").onclick = () => adminModal.style.display = "none";
+document.getElementById("loginBtn").onclick = () => loginModal.style.display = "block";
+document.getElementById("closeL").onclick = () => loginModal.style.display = "none";
+document.getElementById("submitLogin").onclick = () => {
+    const u = document.getElementById("username").value;
+    if (u) { setCookie("username", u, 7); location.reload(); }
+};
