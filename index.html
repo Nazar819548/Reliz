@@ -1,8 +1,8 @@
-
 <!DOCTYPE html>
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Logika Brand Store</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
@@ -12,8 +12,7 @@
 <body>
 
 <header>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <h1>Logika Brand Store</h1>
+    <h1 data-aos="zoom-in">Logika Brand Store</h1>
     <div class="header-controls">
         <div class="balance-wrapper">
             <i class="fas fa-coins"></i>
@@ -21,6 +20,7 @@
         </div>
         
         <button id="loginBtn" class="login-btn">Увійти</button>
+        <button id="regBtn" class="login-btn" style="background: #6c5ce7; margin-left: 5px;">Реєстрація</button>
 
         <div class="cart-wrapper" id="cartBtn">
             <i class="fas fa-shopping-basket cart-icon"></i>
@@ -28,47 +28,115 @@
         </div>
     </div>
 </header>
+
 <div class="search-container">
   <div class="search-bar">
     <input type="text" id="searchInput" class="search-input" placeholder="Пошук товару..." />
     <div class="search-icon">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        height="24"
-        viewBox="0 0 24 24"
-        width="24"
-      >
+      <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
         <path d="M0 0h24v24H0z" fill="none"></path>
-        <path
-          d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zM9.5 14C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
-        ></path>
+        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zM9.5 14C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
       </svg>
     </div>
   </div>
   <div class="glow"></div>
 </div>
+
 <div class="filter-container">
-<select id="priceFilter">
-<option value="default">Сортувати</option>
-<option value="cheap">Від дешевого до дорогого</option>
-<option value="expensive">Від дорогого до дешевого</option>
-</select>
+    <select id="priceFilter">
+        <option value="default">Сортувати</option>
+        <option value="cheap">Від дешевого до дорогого</option>
+        <option value="expensive">Від дорогого до дешевого</option>
+    </select>
 </div>
+
 <div id="loginModal" class="modal">
     <div class="modal-content">
-        <span class="close-login">&times;</span>
+        <span class="close-login" id="closeL">&times;</span>
         <h2>Вхід до Logika</h2>
         <input type="text" id="username" placeholder="Ваш логін">
         <input type="password" id="password" placeholder="Ваш пароль">
         <button id="submitLogin">Увійти в аккаунт</button>
     </div>
 </div>
+
+<div id="regModal" class="modal">
+    <div class="modal-content">
+        <span class="close-login" id="closeR">&times;</span>
+        <h2>Реєстрація</h2>
+        <p style="color: #6c5ce7; font-size: 0.9rem;">Бонус +100 Logiks для нових користувачів! 🎁</p>
+        <input type="text" id="regUsername" placeholder="Придумайте логін">
+        <input type="password" placeholder="Пароль">
+        <button id="submitReg" style="background: #6c5ce7; color: white; border: none; padding: 10px; border-radius: 8px; width: 100%; cursor: pointer;">Створити аккаунт</button>
+    </div>
+</div>
+<button id="adminBtn" class="login-btn" style="display:none; background: #ff4757; margin-left: 5px;">Адмін Панель</button>
+
+<div id="adminAnnouncement" style="display:none; background: #feb47b; text-align:center; padding: 10px; font-weight: bold; color: #222;"></div>
+
+<div id="adminModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span>Панель керування NazarProgram</span>
+            <span id="closeAdmin" style="float:right; cursor:pointer;">&times;</span>
+        </div>
+        
+        <h4>1. Надіслати оголошення</h4>
+        <input type="text" id="announcementText" placeholder="Текст повідомлення...">
+        <button onclick="postAnnouncement()" class="main-btn">Звичайне оголошення</button>
+
+        <button onclick="postGlobalMessage()" class="main-btn" style="background: #eb4d4b; margin-top: 5px;">
+            📢 Глобальне (на 10 сек)
+        </button>
+        <h4>2. Керування цінами</h4>
+<div style="display: flex; gap: 5px;">
+    <select id="salePercent" class="main-btn" style="background: #fff; color: #222; border: 1px solid #ccc; width: 60%;">
+        <option value="0.9">Знижка -10%</option>
+        <option value="0.8" selected>Знижка -20%</option>
+        <option value="0.5">Знижка -50%</option>
+        <option value="0.1">Знижка -90%</option>
+    </select>
+    <button onclick="activateCustomSale()" class="main-btn" style="background: #ffa502; width: 40%; margin-top: 0;">OK</button>
+</div>
+<h4>3. Створити опитування (59 сек)</h4>
+<input type="text" id="pollQuestion" placeholder="Питання (напр. Який колір краще?)">
+<div style="display: flex; gap: 5px; margin-top: 5px;">
+    <input type="text" id="pollOpt1" placeholder="Варіант 1" style="width: 50%;">
+    <input type="text" id="pollOpt2" placeholder="Варіант 2" style="width: 50%;">
+</div>
+<button onclick="startPoll()" class="main-btn" style="background: #6c5ce7;">Запустити опитування 🚀</button>
+
+<div id="activePollContainer" style="display:none; position: fixed; bottom: 20px; right: 20px; width: 300px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 9999; border: 2px solid #6c5ce7;">
+    <h3 id="displayPollQuest" style="font-size: 1rem; margin-bottom: 10px;"></h3>
+    <div id="pollTimer" style="font-weight: bold; color: #ff4757; margin-bottom: 10px;">59s</div>
+    
+    <div onclick="vote(1)" style="cursor:pointer; margin-bottom: 10px;">
+        <div style="display: flex; justify-content: space-between;"><span id="opt1Text"></span> <span id="opt1Perc">0%</span></div>
+        <div style="width: 100%; background: #eee; height: 10px; border-radius: 5px; overflow: hidden;">
+            <div id="bar1" style="width: 0%; background: #6c5ce7; height: 100%; transition: 0.3s;"></div>
+        </div>
+    </div>
+    
+    <div onclick="vote(2)" style="cursor:pointer;">
+        <div style="display: flex; justify-content: space-between;"><span id="opt2Text"></span> <span id="opt2Perc">0%</span></div>
+        <div style="width: 100%; background: #eee; height: 10px; border-radius: 5px; overflow: hidden;">
+            <div id="bar2" style="width: 0%; background: #2ed573; height: 100%; transition: 0.3s;"></div>
+        </div>
+    </div>
+</div>
+<button onclick="resetPrices()" class="main-btn" style="background: #747d8c; margin-top: 5px;">❌ Скинути ціни до стандартних</button>
+        <h4>4. Додати новий товар</h4>
+        <input type="text" id="newPName" placeholder="Назва товару">
+        <input type="number" id="newPPrice" placeholder="Ціна">
+        <input type="text" id="newPImg" placeholder="URL картинки">
+        <button onclick="addNewProduct()" class="main-btn" style="background: #2ed573;">Додати в магазин</button>
+    </div>
+</div>
 <div id="cartModal" class="modal">
     <div class="modal-content cart-content">
         <span class="close-cart">&times;</span>
         <h2>Ваш кошик</h2>
-        <div id="cartItemsList">
-            </div>
+        <div id="cartItemsList"></div>
         <hr>
         <div class="cart-total">
             <strong>Разом: <span id="cartTotal">0</span> Logiks</strong>
@@ -87,10 +155,11 @@
         <button id="confirmOrder">Готово</button>
     </div>
 </div>
+
 <section class="products" id="products"></section>
 
 <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
-<script>AOS.init();</script>
+<script>AOS.init({ duration: 800 });</script>
 <script src="script.js"></script>
 </body>
 </html>
